@@ -1,9 +1,0 @@
-synth notes are playable via UI
-
-recordAudio function can record a single note and download the file as 
-.webm to Downloads (cannot specify a different location, browser specific)
-
-use ffmpeg to convert file from .webm to .mp3 (or .wav) and store in DB
-    -how to make this happen automatically?
-
-zsynth service queries the DB and returns the specified file
