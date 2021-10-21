@@ -2,7 +2,7 @@
   "name": "zsynth",
   "version": "1.0.0",
   "description": "interactive synthesizer built on the web audio api/tone.js",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/zacharybmeyers/zsynth#readme",
   "dependencies": {
-    "tone": "^14.7.77"
+    "tone": "^14.8.32"
   }
 }
