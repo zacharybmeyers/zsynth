@@ -10,7 +10,6 @@
     "type": "git",
     "url": "git+https://github.com/zacharybmeyers/zsynth.git"
   },
-  "type": "module",
   "author": "zachary meyers",
   "license": "ISC",
   "bugs": {
@@ -22,6 +21,7 @@
     "express": "^4.17.1",
     "express-handlebars": "^5.3.4",
     "move-file": "^3.0.0",
+    "multer": "^1.4.3",
     "tone": "^14.7.77"
   }
 }

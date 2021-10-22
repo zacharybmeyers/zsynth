@@ -1,33 +1,32 @@
-import { moveFile } from "move-file";
-import express from 'express';
-import handlebars from 'express-handlebars';
-import Tone from 'tone';
+var express = require('express');
+var handlebars = require('express-handlebars').create({defaultLayout:'main'});;
+var multer = require('multer');
 
-handlebars.create({defaultLayout:'main'});
 var app = express();
-app.engine('handlebars', handlebars());
+var upload = multer({ dest: "audio/" });
+var type = upload.single('upl');
+
+app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 8080);
 
-// body parser deprecated, use express
+// body parser deprecated, use express to parse...
+// application/xwww-form-urlencoded, and application/json
+// use multer to parse multipart/form-data
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // use public folder to serve client-side html and js
 app.use(express.static('public'));
 
-// move file out of downloads 
-async function moveDownload(filename) {
-    await moveFile('/Users/zachary/Downloads/' + filename, 
-    '/Users/zachary/Documents/OSU/CS361/zsynth/audio/' + filename);
-    console.log('The file has been moved');
-}
-
 app.get('/', (req, res) => {
     res.render('home');
 })
 
-app.post('/upload', (req, res) => {
-    console.log(req.body.recording);
+app.post('/upload', type, (req, res) => {
+    console.log(req.body);
+    console.log(req.file);
+    // do stuff with file here
+    res.send('file received by server');
 })
 
 app.listen(app.get('port'), function () {
