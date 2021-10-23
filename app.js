@@ -5,19 +5,19 @@ var fs = require('fs');
 var path = require('path');
 
 var app = express();
-var upload = multer({ dest: "audio/" });
-var type = upload.single('upl');
-
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 8080);
 
 // body parser deprecated, use express to parse...
-// application/xwww-form-urlencoded, and application/json
+//  application/xwww-form-urlencoded
+//  application/json
 // use multer to parse multipart/form-data
+// use public folder to serve client-side html and js
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-// use public folder to serve client-side html and js
+var upload = multer({ dest: "audio/" });
+var type = upload.single('upl');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
@@ -41,9 +41,26 @@ app.get('/download/:fileName', (req, res) => {
 app.post('/upload/base64', (req, res) => {
     // strip metadata from audio string, write to .ogg file
     var rawAudioString = req.body.audioString.replace('data:audio/webm;codecs=opus;base64,', '')
-    fs.writeFileSync(`./audio/${req.body.name}.ogg`, Buffer.from(rawAudioString, 'base64'));
+    fs.writeFileSync(`./audio/${req.body.parentDir}/${req.body.name}.ogg`, Buffer.from(rawAudioString, 'base64'));
     res.send('base64 received by server');
 })
+
+app.post('/patch', type, (req, res) => {
+    console.log('patch endpoint reached');
+    fs.mkdirSync(path.resolve(`./audio/${req.body.pname}`), { recursive: true })
+    res.end();
+})
+
+// error handling
+app.use( (req, res) => {
+    res.status(404);
+    // res.render('404');
+  });
+  
+  app.use( (req, res) => {
+    res.status(500);
+    // res.render('500');
+  });
 
 app.listen(app.get('port'), function () {
     console.log(`Express started on http://localhost:${app.get('port')}; press Ctrl-C to terminate.`)

@@ -5,7 +5,7 @@
         <title>zsynth</title>
         <link rel="stylesheet" href="stylesheet.css" type="text/css">
         <!-- LOAD Tone.js from unpkg -->
-		<script src="http://unpkg.com/tone"></script>
+		<!-- <script src="http://unpkg.com/tone"></script> -->
     </head>
     <body>
         <h1>zsynth</h1>
@@ -28,11 +28,19 @@
         <button class="note" id="C6">C6</button>
         
         <br></br>
-        <button id="submit">send note blob to server</button>
-
+        <button id="submit-blob">send note blob to server</button>
         <br></br>
-        <button id="submit2">send note base64 to server</button>
+        <button id="submit-base64">send note base64 to server</button>
+        <br></br>
+        <button id="submit-all-base64">send ALL NOTES as base64 to server</button>
+        <br></br>
+        <form id="patch-form" method="post" action="/patch">
+            <label for="pname">patch name</label>
+            <input type="text" id="pname" name="pname"></input>
+            <input type="submit" value="save patch"></input>
+        </form>
+        <p id="log"></p>
 
-        <script src="index.js"></script>
+        <script src="bundle.js"></script>
     </body>
 </html>
