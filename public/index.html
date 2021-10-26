@@ -42,25 +42,24 @@
 
         <div class="buttons">
             <button id="play-button">play</button>
-            <button id="submit-blob">send note blob to server</button>
-            <button id="submit-base64">send note base64 to server</button>
-            <button id="submit-all-base64">send ALL NOTES as base64 to server</button>
+            <button id="mute-button">mute</button>
+            <select name="osc-select" id="osc-select">
+                <option value="" selected="selected" hidden="hidden">oscillator</option>
+                <option value="fatsine">sine</option>
+                <option value="fatsawtooth">sawtooth</option>
+                <option value="fattriangle">triangle</option>
+                <option value="fatsquare">square</option>
+            </select>
+        </div>
+
+        <div class="save-patch">
             <form id="patch-form" method="post" action="/patch">
                 <label for="pname">patch name</label>
                 <input type="text" id="pname" name="pname"></input>
                 <input type="submit" value="save patch"></input>
             </form>
-            <p id="log"></p>
-
         </div>
-
-        <select name="osc-select" id="osc-select">
-            <option value="" selected="selected" hidden="hidden">oscillator</option>
-            <option value="fatsine">sine</option>
-            <option value="fatsawtooth">sawtooth</option>
-            <option value="fattriangle">triangle</option>
-            <option value="fatsquare">square</option>
-        </select>
+        <p id="log"></p>
         <!-- <script src="bundle.js"></script> -->
     </body>
 </html>

@@ -46,7 +46,6 @@ app.post('/upload/base64', (req, res) => {
 })
 
 app.post('/patch', type, (req, res) => {
-    console.log('patch endpoint reached');
     fs.mkdirSync(path.resolve(`./audio/${req.body.pname}`), { recursive: true })
     res.end();
 })
