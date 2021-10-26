@@ -123,9 +123,15 @@ form.addEventListener('submit', (event) => {
     // console.log(parentDir);
     createAllRecordings(parentDir);
 
+    // display save success as alert
+    // window.alert(`patch ${parentDir} saved!`);
+
     const log = document.getElementById('log');
     log.style.display = 'inline-block';
     log.textContent = 'patch saved!';
+
+    // reset text input back to blank
+    document.getElementById('pname').value = "";
 
     // set timeout to make log message disappear
     setTimeout(() => {log.style.display = 'none'}, 5000);
