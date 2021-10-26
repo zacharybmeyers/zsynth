@@ -4,6 +4,8 @@
         <meta charset="UTF-8">
         <title>zsynth</title>
         <link rel="stylesheet" href="styles.css" type="text/css">
+        <!-- get google icons -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <script src="bundle.js" defer></script>
         <!-- LOAD Tone.js from unpkg -->
 		<!-- <script src="http://unpkg.com/tone"></script> -->
@@ -40,7 +42,7 @@
             <div data-note="B5" class="key white"></div>
         </div>
 
-        <div class="buttons">
+        <div class="menu-bar">
             <button id="play-button">play</button>
             <button id="mute-button">mute</button>
             <select name="osc-select" id="osc-select">
@@ -50,6 +52,12 @@
                 <option value="fattriangle">triangle</option>
                 <option value="fatsquare">square</option>
             </select>
+            <div class="tooltip">
+                <a href="https://learningsynths.ableton.com/en/oscillators/how-synths-make-sound" target="_blank">
+                    <i class="material-icons loose-text" style="font-size:20px;">help</i>
+                </a>
+                <div class="tooltip-text loose-text">learn about oscillators</div>
+            </div>
         </div>
 
         <div class="save-patch">

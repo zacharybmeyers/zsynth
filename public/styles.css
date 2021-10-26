@@ -16,7 +16,7 @@ body {
     color: darkgoldenrod;
 }
 
-.buttons {
+.menu-bar {
     display: flex;
     margin: 10px 0;
 }
@@ -60,4 +60,32 @@ body {
 
 a {
     color: blue;
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+  
+/* Tooltip text */
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 150px;
+    background-color:wheat;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    /* Position the tooltip text to the right */
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 105%;
+}
+  
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltip-text {
+    visibility: visible;
 }

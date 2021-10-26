@@ -147,7 +147,8 @@ form.addEventListener('submit', (event) => {
     // console.log(parentDir);
     createAllRecordings(parentDir);
 
-    window.alert(`patch ${parentDir} saved!`);
+    // display save success as alert
+    // window.alert(`patch ${parentDir} saved!`);
 
     const log = document.getElementById('log');
     log.style.display = 'inline-block';
