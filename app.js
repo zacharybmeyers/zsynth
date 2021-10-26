@@ -24,16 +24,8 @@ app.get('/', (req, res) => {
     res.render('home');
 })
 
-app.post('/upload', type, (req, res) => {
-    console.log(req.body);
-    console.log(req.file);
-    // do stuff with file here - store in DB?
-    // for now multer will process FormData and store in /audio
-    res.send('blob received by server');
-})
-
-app.get('/download/:fileName', (req, res) => {
-    res.sendFile(path.resolve(`./audio/${req.params.fileName}.ogg`));
+app.get('/download/:patchName/:fileName', (req, res) => {
+    res.sendFile(path.resolve(`./audio/${req.params.patchName}/${req.params.fileName}.ogg`));
     // res.download(path.resolve(`./audio/${req.params.fileName}.ogg`));
     // res.attachment(path.resolve(`./audio/${req.params.fileName}.ogg`));
 })
