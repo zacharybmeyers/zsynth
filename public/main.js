@@ -1,6 +1,9 @@
 // USE BROWSERIFY TO BUNDLE: $ browserify main.js -o bundle.js 
 // this way the client end JS can make use of node packages and require
 // within index.html -> link script to bundle.js (not main.js): <script src="bundle.js"></script>
+//
+// the npm start script has been configured to bundle, serve, and launch localhost
+
 var Tone = require('tone');
 
 // when page loads add functionality to start audio context and play all notes
@@ -11,17 +14,42 @@ window.addEventListener('DOMContentLoaded', () => {
 	    console.log('audio is ready');
     })
     // get all notes, make them playable based on their unique id
-    var allNotes = document.getElementsByClassName("note");
-    for (let note of allNotes) {
-        note.addEventListener('click', () => playNote(note.id));
-    }
+    keys.forEach(key => {
+        key.addEventListener('click', playNote(key.dataset.note, synthOptions));
+    })
+    // get oscillator drop down, make selected option change the synth oscillator
+    var oscSelect = document.getElementById("osc-select");
+    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
 })
 
-function playNote(note) {
-    // create a synth
-    const synth = new Tone.Synth().toDestination();
-    // play a note from that synth lasting for an 8th note
-    synth.triggerAttackRelease(note, "8n");
+// get all keys
+const keys = document.querySelectorAll(".key");
+
+// create default synth options
+const synthOptions = {
+    oscillator: {
+        type : "fatsine"
+    }
+}
+
+// playNote returns a function that creates a new synth with :param:options (oscillator)
+// and plays the :param:note
+function playNote(note, options) {
+    return () => {
+        // create a synth
+        const synth = new Tone.Synth(options).toDestination();
+        // play a note from that synth lasting for an 8th note
+        synth.triggerAttackRelease(note, "8n");
+    }
+}
+
+function changeOscillator(osc) {
+    // update synthOptions, remove current listener, add new listener
+    synthOptions.oscillator.type = osc;
+    keys.forEach(key => {
+        key.removeEventListener('click', playNote(key.dataset.note, synthOptions));
+        key.addEventListener('click', playNote(key.dataset.note, synthOptions));
+    })
 }
 
 /* ----- Create recording of a note, send to server as blob -----*/
@@ -104,10 +132,9 @@ document.getElementById("submit-base64").addEventListener('click', () => createR
 
 /* ----- Create recordings of all the current note elements, send to the server ----- */
 function createAllRecordings(pDir) {
-    var allNotes = document.getElementsByClassName("note");
-    for (let note of allNotes) {
-        createRecording(note.id, pDir);
-    }
+    keys.forEach(key => {
+        createRecording(key.dataset.note, pDir);
+    })
 }
 
 document.getElementById("submit-all-base64").addEventListener('click', () => createAllRecordings(pDir));
@@ -133,7 +160,7 @@ form.addEventListener('submit', (event) => {
     createAllRecordings(parentDir);
 
     const log = document.getElementById('log');
-    log.style.display = 'block';
+    log.style.display = 'inline-block';
     log.textContent = 'patch saved!';
 
     // set timeout to make log message disappear
