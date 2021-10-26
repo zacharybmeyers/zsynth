@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
     res.render('home');
 })
 
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
 app.get('/download/:patchName/:fileName', (req, res) => {
     res.sendFile(path.resolve(`./audio/${req.params.patchName}/${req.params.fileName}.ogg`));
     // res.download(path.resolve(`./audio/${req.params.fileName}.ogg`));

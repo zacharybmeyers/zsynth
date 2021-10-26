@@ -9,7 +9,7 @@
 		<!-- <script src="http://unpkg.com/tone"></script> -->
     </head>
     <body>
-        <div class="heading">
+        <div class="loose-text">
             <h1>zsynth</h1>
         </div>
 
@@ -54,12 +54,14 @@
 
         <div class="save-patch">
             <form id="patch-form" method="post" action="/patch">
-                <label for="pname">patch name</label>
-                <input type="text" id="pname" name="pname"></input>
+                <label for="pname" class="loose-text">patch name</label>
+                <input type="text" id="pname" name="pname" required></input>
                 <input type="submit" value="save patch"></input>
             </form>
         </div>
-        <p id="log"></p>
+        
+        <p id="log" class="loose-text"></p>
+        
         <!-- <script src="bundle.js"></script> -->
     </body>
 </html>
