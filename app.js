@@ -2,7 +2,6 @@ var express = require('express');
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var multer = require('multer');
 var fs = require('fs');
-var zlib = require('zlib');
 var child_process = require('child_process');
 var path = require('path');
 
@@ -36,37 +35,6 @@ app.get('/download/:patchName/:fileName', (req, res) => {
     // res.download(path.resolve(`./audio/${req.params.fileName}.ogg`));
     // res.attachment(path.resolve(`./audio/${req.params.fileName}.ogg`));
 })
-
-// single file .zip GET request
-app.get('/zip/:patchName/:fileName', (req, res) => {
-    const fileContents = fs.createReadStream(`./audio/${req.params.patchName}/${req.params.fileName}.ogg`);
-    const writeStream = fs.createWriteStream(`./audio/${req.params.patchName}/${req.params.fileName}.ogg.gz`);
-    const zip = zlib.createGzip();
-    fileContents.pipe(zip).pipe(writeStream);
-    res.end();
-})
-
-// entire directory .zip GET request
-app.get('/zip/:patchName', (req, res) => {
-    const dir = `./audio/${req.params.patchName}`;
-    // Check if the patch name exists as a directory
-    fs.access(dir, fs.constants.F_OK, (err) => {
-        if (err) { // send error if doesn't exist
-            res.send(`patch ${req.params.patchName} does not exist`);
-        } else { // otherwise zip directory and send
-            child_process.exec(`zip -r ${req.params.patchName} *`, {cwd: `${dir}`}, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`exec error: ${error}`);
-                    return;
-                  }
-                  console.log(`stdout: ${stdout}`);
-                  console.error(`stderr: ${stderr}`);
-                  res.sendFile(path.resolve(`${dir}/${req.params.patchName}.zip`))
-            });
-        }
-    });
-})
-
 
 // TODO: refactor for lighter DB storage -> store rawAudioString in DB, only convert to .ogg file when GET request comes in
 app.post('/upload/base64', (req, res) => {
