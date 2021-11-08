@@ -92,7 +92,7 @@ async function sendBase64(base64data, note, pDir) {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             parentDir: pDir,
-            name: note,
+            noteName: note,
             audioString: base64data
         })
     }

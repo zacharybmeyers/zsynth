@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run build && open http://localhost:8080/ && npm run serve",
     "build": "browserify public/main.js -o public/bundle.js",
-    "serve": "node app.js"
+    "serve": "nodemon app.js"
   },
   "repository": {
     "type": "git",
