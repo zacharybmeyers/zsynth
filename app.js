@@ -26,6 +26,10 @@ const username = 'zsynth';
 const password = 'zsynth';
 const uri = `mongodb+srv://${username}:${password}@cluster0.bzqjc.mongodb.net/zsynth_users?retryWrites=true&w=majority`;
 
+// import utility functions for MongoDB CRUD operations
+const mongo = require('./mongo.js');
+
+// test cases
 const TEST_USER_ID = 2;
 const TEST_PATCH_NAME = "triangley";
 
@@ -46,13 +50,13 @@ MongoClient.connect(uri)
     app.get('/createUser/:userID', (req, res) => {        
         // convert string to int
         const userID = parseInt(req.params.userID, 10)
-        createUser(db, userID);
+        mongo.createUser(db, userID);
         res.send('user added to db!');
     })
 
     // create patch
     app.post('/patch', type, (req, res) => {
-        addPatchToUser(db, TEST_USER_ID, req.body.pname, { waveform: "sine" });
+        mongo.addPatchToUser(db, TEST_USER_ID, req.body.pname, { waveform: "sine" });
         res.end();
     })
     
@@ -60,13 +64,13 @@ MongoClient.connect(uri)
     app.post('/upload/base64', (req, res) => {    
         // strip metadata from audio string, write to .ogg file
         var rawAudioString = req.body.audioString.replace('data:audio/webm;codecs=opus;base64,', '')    
-        addNoteToPatch(db, TEST_USER_ID, req.body.parentDir, req.body.noteName, rawAudioString);
+        mongo.addNoteToPatch(db, TEST_USER_ID, req.body.parentDir, req.body.noteName, rawAudioString);
         res.send('base64 added to db');
     })
 
     // single file GET request
     app.get('/download/:patchName/:fileName', (req, res) => {
-        getNoteFromPatch(db, TEST_USER_ID, req.params.patchName, req.params.fileName)
+        mongo.getNoteFromPatch(db, TEST_USER_ID, req.params.patchName, req.params.fileName)
         .then(note => {
             const notePath = `./audio/${note.note_name}.ogg`;
             audioStringToFile(notePath, note.audio_string)
@@ -107,57 +111,4 @@ async function audioStringToFile(path, audioString) {
     } catch (error) {
         console.log(error);
     }
-}
-
-// ALL MongoDB FUNCTIONS
-async function createUser(db, userID) {
-    const user = {
-        user_id: userID
-    }
-    const result = await db.collection("users").insertOne(user);
-    console.log(`user added with id: ${result.insertedId}`);
-}
-
-async function addPatchToUser(db, userID, patchName, patchConfig) {
-    const patch = {
-        patch_name: patchName,
-        patch_config: patchConfig
-    }
-    const result = await db.collection("users").updateOne(
-        { user_id: userID },
-        { $push: { patches: patch } }
-    )
-    console.log(`patch added with id: ${result.insertedId}`)
-}
-
-async function addNoteToPatch(db, userID, patchName, noteName, audioString) {
-    const note = {
-        note_name: noteName,
-        audio_string: audioString
-    }
-    const result = await db.collection("users").updateOne(
-        { user_id: userID, 
-        "patches.patch_name": patchName },
-        { $push: { "patches.$.notes": note } }
-    );
-    console.log(`note added with id: ${result.insertedId}`)
-}
-
-async function getNoteFromPatch(db, userID, patchName, noteName) {    
-    const user = await db.collection("users").findOne(
-        { user_id: userID }
-    )
-
-    // TODO: refactor this into a mongo query (can't figure it out right now)
-    for (const patch of user.patches) {
-        if (patch.patch_name == patchName) {
-            for (const note of patch.notes) {
-                if (note.note_name == noteName) {
-                    return note;
-                }
-            }
-        }
-    }
-
-    throw `Unable to find note: ${noteName}`;
 }

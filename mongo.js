@@ -1,101 +1,59 @@
-const { MongoClient } = require('mongodb');
-
-async function main() {
-    const username = 'zsynth';
-    const password = 'zsynth';
-    const uri = `mongodb+srv://${username}:${password}@cluster0.bzqjc.mongodb.net/zsynth_users?retryWrites=true&w=majority`;
-
-    const client = new MongoClient(uri);
-
-    try {
-        await client.connect();
-        const db = client.db("zsynth");
-
-        const user = {
-            user_id: 1
-        }
-
-        const patch = {
-            patch_name: "sinesfun", 
-            patch_config: { waveform: "sine" }
-        }
-
-        const note = {
-            note_name: "C4",
-            audio_string: "alskjekwqjlrjqewr"
-        }
-
-        await createUser(db, user);
-        await addPatchToUser(db, user.user_id, patch);
-        await addNoteToPatch(db, user.user_id, patch.patch_name, note);
-
-    } catch(e) {
-        console.error(e);
-    } finally {
-        await client.close();
+// ALL MongoDB FUNCTIONS
+async function createUser(db, userID) {
+    const user = {
+        user_id: userID
     }
-
-}
-
-main().catch(console.error);
-
-async function createUser(db, user) {
     const result = await db.collection("users").insertOne(user);
-    console.log(`new user id: ${result.insertedId}`);
+    console.log(`user added with id: ${result.insertedId}`);
 }
 
-// mongosh command to delete all documents from "users" collection: db.users.deleteMany({})
-
-async function addPatchToUser(db, userID, patch) {
+async function addPatchToUser(db, userID, patchName, patchConfig) {
+    const patch = {
+        patch_name: patchName,
+        patch_config: patchConfig
+    }
     const result = await db.collection("users").updateOne(
         { user_id: userID },
         { $push: { patches: patch } }
-    );
-    console.log(`patch: ${patch.patch_name} added`);
+    )
+    console.log(`patch added with id: ${result.insertedId}`)
 }
 
-async function addNoteToPatch(db, userID, patchName, note) {
+async function addNoteToPatch(db, userID, patchName, noteName, audioString) {
+    const note = {
+        note_name: noteName,
+        audio_string: audioString
+    }
     const result = await db.collection("users").updateOne(
         { user_id: userID, 
         "patches.patch_name": patchName },
         { $push: { "patches.$.notes": note } }
     );
-    console.log(`note: ${note.note_name} added`);
+    console.log(`note added with id: ${result.insertedId}`)
 }
 
-async function listDatabases(client) {
-    const databasesList = await client.db().admin().listDatabases();
-    
-    console.log("Databases:");
-    databasesList.databases.forEach(db => {
-        console.log(`- ${db.name}`);
-    })
-}
+async function getNoteFromPatch(db, userID, patchName, noteName) {    
+    const user = await db.collection("users").findOne(
+        { user_id: userID }
+    )
 
-/* 
-overall mongodb schema: embedded (nested) documents
-
-const user = {
-    _id: some unique object id (primary key),
-    user_id: userID (from Oliver's login service?),
-    patches: [
-        {
-            patch_name: patchName,
-            patch_config: patchConfig,
-            notes: [
-                {
-                    note_name: noteName,
-                    audio_string: audioString
-                },
-                {
-                    note_name: noteName,
-                    audio_string: audioString
+    // TODO: refactor this into a mongo query (can't figure it out right now)
+    for (const patch of user.patches) {
+        if (patch.patch_name == patchName) {
+            for (const note of patch.notes) {
+                if (note.note_name == noteName) {
+                    return note;
                 }
-            ]
-        },
-        {
-            ANOTHER PATCH HERE
+            }
         }
-    ]
+    }
+
+    throw `Unable to find note: ${noteName}`;
 }
-*/
+
+module.exports = {
+    createUser,
+    addPatchToUser,
+    addNoteToPatch,
+    getNoteFromPatch
+}
