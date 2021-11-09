@@ -15,10 +15,12 @@ Once you have saved a patch, you can query the service for a note (while the ser
 
 This will save the file from your saved patch in .ogg format to the directory of your choice (where you run the command from).
 
-``{note name}`` must be in the following format: capital letter, sharp (optional), and then number. 
+``{note name}`` must be in the following format: capital letter, sharp identifier (optional), and then number. 
 
-* ex: "C4", "C#4"
+* ex: "C4", "CS4" = C#4
 
 For simplicity, all enharmonic spellings make use of sharps (no flats).
+
+**SHARPS DO NOT WORK AS OF RIGHT NOW, WORKING TO FIX...**
 
 As of right now, the range of notes provided is two octaves from C3-B5 (not including C6).
