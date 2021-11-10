@@ -17,10 +17,8 @@ This will save the file from your saved patch in .ogg format to the directory of
 
 ``{note name}`` must be in the following format: capital letter, sharp identifier (optional), and then number. 
 
-* ex: "C4", "CS4" = C#4
+* ex: "C4", "C%234" = C#4 (%23 is the UTF-8 code for the # character)
 
 For simplicity, all enharmonic spellings make use of sharps (no flats).
-
-**SHARPS DO NOT WORK AS OF RIGHT NOW, WORKING TO FIX...**
 
 As of right now, the range of notes provided is two octaves from C3-B5 (not including C6).
