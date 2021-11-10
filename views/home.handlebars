@@ -1,1 +1,15 @@
-<h1>zsynth microservice</h1>
+<div class="login-parent">
+    <h1 class="loose-text">zsynth</h1>
+    <div class="login-child">
+        <div><button id="signin-home">Sign In</button></div>
+        <div><button id="signup-home">Sign Up</button></div>
+        <div><a href="/">Skip</a></div>
+    </div>
+</div>
+<script>
+    var signInButton = document.getElementById("signin-home");
+    signInButton.addEventListener("click", () => {document.location.href = "/login"})
+
+    var signUpButton = document.getElementById("signup-home");
+    signUpButton.addEventListener("click", () => {document.location.href = "/create-account"});
+</script>

@@ -1,0 +1,70 @@
+<div class="login-parent">
+    <h1 class="loose-text">Sign Up</h1>
+    <div class="login-child">
+        <form id="account-form" method="get" action="http://nodejs-test-earquiz.herokuapp.com/create?">
+            <label for="email" class="loose-text">Email</label>
+            <input type="text" id="email" name="email" required></input>
+
+            <label for="pswd" class="loose-text">Password</label>
+            <input type="password" id="pswd" name="pswd" onkeyup="check();" required></input>
+
+            <label for="pswd-repeat" class="loose-text">Re-enter password</label>
+            <input type="password" id="pswd-repeat" name="pswd-repeat" onkeyup="check();" required></input>
+
+            {{!-- by default: show x emoji with matching background color (blends in and leaves space) --}}
+            <span id="message" style="display: inline; color: wheat;">&#10006</span>
+
+            <input type="submit" id="signup-button" class="signupbtn" value="Create Account"></input>
+
+            <button type="button" id="cncl-button" class="cancelbtn">Cancel</button>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    var cancelButton = document.getElementById("cncl-button");
+    cancelButton.addEventListener("click", () => document.location.href = "/home")
+
+    // validate password and password repeat
+    // display emojis to show state of password match
+    // disable form submit if passwords don't match
+    var check = () => {
+        var pswd = document.getElementById("pswd").value;
+        var pswdRepeat = document.getElementById("pswd-repeat").value;
+        var message = document.getElementById("message");
+        var acctSubmit = document.getElementById("signup-button");
+
+        if (pswd == pswdRepeat) {
+            message.style.color = "green";
+            message.innerHTML = "&#10004"; // green check emoji
+            acctSubmit.disabled = false;
+        } else {
+            message.style.color = "red";
+            message.innerHTML = "&#10006"; // red x emoji
+            acctSubmit.disabled = true;
+        }
+    }
+
+    const form = document.getElementById('account-form');
+    form.addEventListener('submit', (event) => {
+        const form = event.target;
+        var fd = new FormData(form);
+
+        // assuming passwords match
+        var email = fd.get('email')
+        var pswd = fd.get('pswd')
+
+        // submit to oliver's service
+        var url = form.action + `email=${email}&password=${pswd}`
+        console.log(url);
+
+        fetch(url, {
+            method: "GET", 
+            mode: "cors"
+            }
+        ).then(res => res.text()).then(data => console.log(data))
+
+        event.preventDefault();
+    });
+</script>

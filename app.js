@@ -39,10 +39,14 @@ MongoClient.connect(uri)
     const db = client.db("zsynth");
 
     // main server code here
-    app.get('/', (req, res) => {
+    app.get('/home', (req, res) => {
         res.render('home');
     })
-    
+
+    app.get('/create-account', (req, res) => {
+        res.render('acct');
+    })
+
     app.get('/login', (req, res) => {
         res.render('login');
     })
