@@ -59,12 +59,35 @@
         var url = form.action + `email=${email}&password=${pswd}`
         console.log(url);
 
+        /*
         fetch(url, {
             method: "GET", 
             mode: "cors"
             }
         ).then(res => res.text()).then(data => console.log(data))
+        */
 
+        // TODO: refactor to use UID from Oliver's service
+        // send UID to DB, store in session
+        const tempUID = '1647qrtx78';
+        sendUIDtoDB(tempUID);
+        sessionStorage.setItem('userID', tempUID);
+
+        // redirect to zsynth main page
+        document.location.href = '/home';
+        
         event.preventDefault();
     });
+
+    function sendUIDtoDB(uid) {
+        fetch('/createUser', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userID: uid
+            })
+        }).then(res => res.text()).then(data => console.log(data))
+    }
 </script>
