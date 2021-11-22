@@ -51,10 +51,8 @@ MongoClient.connect(uri)
         res.render('login');
     })
 
-    app.get('/createUser/:userID', (req, res) => {        
-        // convert string to int
-        const userID = parseInt(req.params.userID, 10)
-        mongo.createUser(db, userID);
+    app.post('/createUser', (req, res) => {        
+        mongo.createUser(db, req.body.userID);
         res.send('user added to db!');
     })
 
