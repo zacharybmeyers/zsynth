@@ -19,4 +19,8 @@
 <script>
     var cancelButton = document.getElementById("cncl-button");
     cancelButton.addEventListener("click", () => document.location.href = "/home")
+
+    // TODO: get UID from Oliver's service on sign in and store
+    const USER_ID = sessionStorage.getItem('userID');
+    console.log(USER_ID);
 </script>
