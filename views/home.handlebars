@@ -2,8 +2,8 @@
     <h1 class="loose-text">zsynth</h1>
     <div class="login-child">
         <div><button id="signin-home">Sign In</button></div>
-        <div><button id="signup-home">Sign Up</button></div>
-        <div><a href="/">Skip</a></div>
+        <div><button id="signup-home">Create Account</button></div>
+        <div><a id="skip-link" href="/">Skip</a></div>
     </div>
 </div>
 <script>
@@ -12,4 +12,7 @@
 
     var signUpButton = document.getElementById("signup-home");
     signUpButton.addEventListener("click", () => {document.location.href = "/create-account"});
+
+    var skipLink = document.getElementById("skip-link");
+    skipLink.addEventListener("click", () => sessionStorage.removeItem("userID"));
 </script>

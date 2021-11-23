@@ -25,6 +25,16 @@ window.addEventListener('DOMContentLoaded', () => {
     // get oscillator drop down, make selected option change the synth oscillator
     var oscSelect = document.getElementById("osc-select");
     oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
+
+    // check for sign in and user id
+    const USER_ID = sessionStorage.getItem('userID');
+    document.getElementById("user-id").addEventListener('click', () => {
+        if (USER_ID) {
+            console.log(USER_ID);
+        } else {
+            console.log('user not logged in: id not found in session')
+        }
+    })
 })
 
 // get all keys

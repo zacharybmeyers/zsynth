@@ -8,20 +8,52 @@
             <label for="pswd" class="loose-text">Password</label>
             <input type="password" id="pswd" name="pswd" required></input>
 
+            {{!-- by default: show x emoji with matching background color (blends in and leaves space) --}}
+            <span id="message" style="display: inline; color: wheat;">&#10006</span>
+
             <input type="submit" class="signupbtn" value="Sign In"></input>
 
             <button type="button" id="cncl-button" class="cancelbtn">Cancel</button>
 
         </form>
+        <p id="log" class="loose-text"></p>
     </div>
 </div>
 
 <script>
+
     var cancelButton = document.getElementById("cncl-button");
     cancelButton.addEventListener("click", () => document.location.href = "/home")
 
-    // TODO: get UID from Oliver's service on sign in and store
-    const USER_ID = sessionStorage.getItem('userID');
-    console.log(USER_ID);
+    const form = document.getElementById('account-form');
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const form = event.target;
+        var fd = new FormData(form);
+        var email = fd.get('email')
+        var pswd = fd.get('pswd')
+
+        // get uid from Oliver's service
+        var url = form.action + `email=${email}&password=${pswd}`
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw Error(`${response.status} ${response.statusText}`);
+            }
+            // Success: read the uid response as text, store in session, redirect page
+            const uid = await response.text();
+            sessionStorage.setItem('userID', uid);
+            document.location.href = '/';
+        } catch (error) {
+            console.log('Looks like there was a problem: ', error)
+            // Failure: display a message and red 'x' emoji to user
+            const log = document.getElementById('log');
+            log.style.display = 'inline-block';
+            log.textContent = 'invalid email/password';
+            const message = document.getElementById('message');
+            message.style.color = 'red';
+        }
+    });
 
 </script>
