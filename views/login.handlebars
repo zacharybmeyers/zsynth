@@ -1,7 +1,7 @@
 <div class="login-parent">
     <h1 class="loose-text">Sign In</h1>
     <div class="login-child">
-        <form id="account-form" method="post" action="/account">
+        <form id="account-form" method="get" action="http://nodejs-test-earquiz.herokuapp.com/get?">
             <label for="email" class="loose-text">Email</label>
             <input type="text" id="email" name="email" required></input>
 
@@ -23,4 +23,5 @@
     // TODO: get UID from Oliver's service on sign in and store
     const USER_ID = sessionStorage.getItem('userID');
     console.log(USER_ID);
+
 </script>
