@@ -11,6 +11,11 @@
 		<!-- <script src="http://unpkg.com/tone"></script> -->
     </head>
     <body>
+        <!-- logout button removes uid from session and redirects to home page -->
+        <a style="color: goldenrod;" href="/home" onclick="sessionStorage.removeItem('userID')">
+            <i class="material-icons" style="font-size:20px;">logout</i>
+        </a>
+
         <div class="loose-text">
             <h1>zsynth</h1>
         </div>

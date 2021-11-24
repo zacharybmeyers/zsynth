@@ -34,9 +34,14 @@
         var email = fd.get('email')
         var pswd = fd.get('pswd')
 
+        const log = document.getElementById('log');
+        const message = document.getElementById('message');
+
         // get uid from Oliver's service
         var url = form.action + `email=${email}&password=${pswd}`
         try {
+            log.style.display = 'inline-block';
+            log.textContent = 'logging in...'
             const response = await fetch(url);
             if (!response.ok) {
                 throw Error(`${response.status} ${response.statusText}`);
@@ -44,14 +49,16 @@
             // Success: read the uid response as text, store in session, redirect page
             const uid = await response.text();
             sessionStorage.setItem('userID', uid);
+            
+            // reset login message
+            log.textContent = '';
+            log.style.display = 'none';
             document.location.href = '/';
         } catch (error) {
             console.log('Looks like there was a problem: ', error)
             // Failure: display a message and red 'x' emoji to user
-            const log = document.getElementById('log');
             log.style.display = 'inline-block';
             log.textContent = 'invalid email/password';
-            const message = document.getElementById('message');
             message.style.color = 'red';
         }
     });
