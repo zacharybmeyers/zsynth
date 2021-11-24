@@ -19,6 +19,7 @@
             <button type="button" id="cncl-button" class="cancelbtn">Cancel</button>
 
         </form>
+        <p id="log" class="loose-text"></p>
     </div>
 </div>
 
@@ -57,6 +58,9 @@
         var email = fd.get('email')
         var pswd = fd.get('pswd')
 
+        const log = document.getElementById('log');
+        const message = document.getElementById('message');
+
         // submit to Oliver's service
         var url = form.action + `email=${email}&password=${pswd}`
         try {
@@ -70,16 +74,11 @@
             await sendUIDtoDB(uid);
             document.location.href = '/home';
         } catch (error) {
-            console.log('Looks like there was a problem: ', error)
+            console.log('Looks like there was a problem: ', error);
+            log.textContent = 'invalid email, please try again';
+            message.style.color = "red";
+            message.innerHTML = "&#10006"; // red x emoji
         }
-
-        // create/store temp UID
-        /* 
-        const tempUID = '1647qrtx78';
-        sendUIDtoDB(tempUID);
-        sessionStorage.setItem('userID', tempUID);
-        */
-
     });
 
     async function sendUIDtoDB(uid) {

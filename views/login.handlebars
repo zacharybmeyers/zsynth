@@ -11,7 +11,7 @@
             {{!-- by default: show x emoji with matching background color (blends in and leaves space) --}}
             <span id="message" style="display: inline; color: wheat;">&#10006</span>
 
-            <input type="submit" class="signupbtn" value="Sign In"></input>
+            <input type="submit" id="submit-button" class="signupbtn" value="Sign In"></input>
 
             <button type="button" id="cncl-button" class="cancelbtn">Cancel</button>
 
@@ -22,8 +22,9 @@
 
 <script>
 
-    var cancelButton = document.getElementById("cncl-button");
-    cancelButton.addEventListener("click", () => document.location.href = "/home")
+    const cancelButton = document.getElementById('cncl-button');
+    cancelButton.addEventListener('click', () => document.location.href = '/home')
+    const submitButton = document.getElementById('submit-button');
 
     const form = document.getElementById('account-form');
     form.addEventListener('submit', async function (event) {
@@ -35,13 +36,15 @@
         var pswd = fd.get('pswd')
 
         const log = document.getElementById('log');
-        const message = document.getElementById('message');
+        const message = document.getElementById('message'); 
 
         // get uid from Oliver's service
         var url = form.action + `email=${email}&password=${pswd}`
         try {
             log.style.display = 'inline-block';
-            log.textContent = 'logging in...'
+            log.textContent = 'logging in, please wait...';
+            cancelButton.disabled = true;
+            submitButton.disabled = true;
             const response = await fetch(url);
             if (!response.ok) {
                 throw Error(`${response.status} ${response.statusText}`);
@@ -49,10 +52,11 @@
             // Success: read the uid response as text, store in session, redirect page
             const uid = await response.text();
             sessionStorage.setItem('userID', uid);
-            
+            sessionStorage.setItem('email', email);
             // reset login message
             log.textContent = '';
             log.style.display = 'none';
+            message.style.color = 'goldenrod';
             document.location.href = '/';
         } catch (error) {
             console.log('Looks like there was a problem: ', error)
@@ -60,6 +64,8 @@
             log.style.display = 'inline-block';
             log.textContent = 'invalid email/password';
             message.style.color = 'red';
+            cancelButton.disabled = false;
+            submitButton.disabled = false;
         }
     });
 

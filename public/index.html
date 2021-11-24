@@ -11,13 +11,18 @@
 		<!-- <script src="http://unpkg.com/tone"></script> -->
     </head>
     <body>
-        <!-- logout button removes uid from session and redirects to home page -->
-        <a style="color: goldenrod;" href="/home" onclick="sessionStorage.removeItem('userID')">
-            <i class="material-icons" style="font-size:20px;">logout</i>
-        </a>
+        
+        <div class="acct-area">
+            <p id="acct-text"></p>
+            <a id="acct-btn" href="/home">
+                <i id="acct-icon" class="material-icons"></i>
+            </a>
+        </div>
 
         <div class="loose-text">
-            <h1>zsynth</h1>
+            <a href="/home" style="color: darkgoldenrod;">
+                <h1>zsynth</h1>
+            </a>
         </div>
 
         <div class="piano">
@@ -69,7 +74,7 @@
             <form id="patch-form" method="post" action="/patch">
                 <label for="pname" class="loose-text">patch name</label>
                 <input type="text" id="pname" name="pname" required></input>
-                <input type="submit" value="save patch"></input>
+                <input type="submit" id="patch-submit" value="save patch"></input>
             </form>
         </div>
 
@@ -77,6 +82,25 @@
         
         <button id="user-id">GET USER ID</button>
 
+        <script>
+            const uid = sessionStorage.getItem('userID');
+            const email = sessionStorage.getItem('email');
+            const acctText = document.getElementById('acct-text');
+            const acctIcon = document.getElementById('acct-icon');
+            const acctBtn = document.getElementById('acct-btn');
+            if (uid && email) {
+                acctText.textContent = `logged in as ${sessionStorage.getItem('email')}`;
+                acctIcon.textContent = 'logout';
+                acctBtn.addEventListener(() => {
+                    sessionStorage.removeItem('userID');
+                    sessionStorage.removeItem('email');
+                })
+            } else {
+                acctText.textContent = 'sign in to save patches';
+                acctIcon.textContent = 'login';
+                document.getElementById('patch-submit').disabled = true;
+            }
+        </script>
         <!-- <script src="bundle.js"></script> -->
     </body>
 </html>
