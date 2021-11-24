@@ -91,7 +91,7 @@
             if (uid && email) {
                 acctText.textContent = `logged in as ${sessionStorage.getItem('email')}`;
                 acctIcon.textContent = 'logout';
-                acctBtn.addEventListener(() => {
+                acctBtn.addEventListener('click', () => {
                     sessionStorage.removeItem('userID');
                     sessionStorage.removeItem('email');
                 })
