@@ -74,6 +74,8 @@
             <form id="patch-form" method="post" action="/patch">
                 <label for="pname" class="loose-text">patch name</label>
                 <input type="text" id="pname" name="pname" required></input>
+                <input type="hidden" id="email" name="email">
+                <input type="hidden" id="userID" name="userID">
                 <input type="submit" id="patch-submit" value="save patch"></input>
             </form>
         </div>
@@ -95,6 +97,9 @@
                     sessionStorage.removeItem('userID');
                     sessionStorage.removeItem('email');
                 })
+                // set uid and email in patch-submit form
+                document.getElementById('userID').value = uid;
+                document.getElementById('email').value = email;
             } else {
                 acctText.textContent = 'sign in to save patches';
                 acctIcon.textContent = 'login';

@@ -1,8 +1,10 @@
 // ALL MongoDB FUNCTIONS
-async function createUser(db, userID) {
+async function createUser(db, userID, email) {
     const user = {
-        user_id: userID
+        user_id: userID,
+        email: email
     }
+    console.log(user);
     const result = await db.collection("users").insertOne(user);
     console.log(`user added with id: ${result.insertedId}`);
 }
@@ -16,7 +18,7 @@ async function addPatchToUser(db, userID, patchName, patchConfig) {
         { user_id: userID },
         { $push: { patches: patch } }
     )
-    console.log(`patch added with id: ${result.insertedId}`)
+    console.log(`patch added with name: ${patchName}`)
 }
 
 async function addNoteToPatch(db, userID, patchName, noteName, audioString) {
@@ -29,7 +31,7 @@ async function addNoteToPatch(db, userID, patchName, noteName, audioString) {
         "patches.patch_name": patchName },
         { $push: { "patches.$.notes": note } }
     );
-    console.log(`note added with id: ${result.insertedId}`)
+    console.log(`note added with name: ${noteName}`)
 }
 
 async function getNoteFromPatch(db, userID, patchName, noteName) {    

@@ -51,14 +51,15 @@ MongoClient.connect(uri)
         res.render('login');
     })
 
-    app.post('/createUser', (req, res) => {        
-        mongo.createUser(db, req.body.userID);
+    app.post('/createUser', (req, res) => {   
+        console.log(req.body);     
+        mongo.createUser(db, req.body.userID, req.body.email);
         res.send('user added to db!');
     })
 
     // create patch
     app.post('/patch', type, (req, res) => {
-        mongo.addPatchToUser(db, TEST_USER_ID, req.body.pname, { waveform: "sine" });
+        mongo.addPatchToUser(db, req.body.userID, req.body.pname, { waveform: "sine" });
         res.end();
     })
     
@@ -66,7 +67,7 @@ MongoClient.connect(uri)
     app.post('/upload/base64', (req, res) => {    
         // strip metadata from audio string, write to .ogg file
         var rawAudioString = req.body.audioString.replace('data:audio/webm;codecs=opus;base64,', '')    
-        mongo.addNoteToPatch(db, TEST_USER_ID, req.body.parentDir, req.body.noteName, rawAudioString);
+        mongo.addNoteToPatch(db, req.body.userID, req.body.patchName, req.body.noteName, rawAudioString);
         res.send('base64 added to db');
     })
 

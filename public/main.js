@@ -69,13 +69,13 @@ function changeOscillator(osc) {
 }
 
 /* ----- Create recordings of all the current note elements, send to the server ----- */
-function createAllRecordings(pDir) {
+function createAllRecordings(patch, uid) {
     // create a recording for each key, store in the parent directory (patch name)
-    keys.forEach(key => createRecording(key.dataset.note, pDir));
+    keys.forEach(key => createRecording(key.dataset.note, patch, uid));
 }
 
 // Create recording of a note, send to server as base64 encoded string
-async function createRecording(note, pDir) {
+async function createRecording(note, patch, uid) {
     const recorder = new Tone.Recorder()
     // create a new temporary synth with polySynth's current options
     const tempSynth = new Tone.Synth(polySynth.get()).connect(recorder);
@@ -91,17 +91,18 @@ async function createRecording(note, pDir) {
         reader.readAsDataURL(recordingBlob);
         reader.onloadend = () => {
             var base64data = reader.result;
-            sendBase64(base64data, note, pDir).then(text => console.log(text)).catch(err => console.log(err));
+            sendBase64(base64data, note, patch, uid).then(text => console.log(text)).catch(err => console.log(err));
         }
     }, 4000);
 }
 
-async function sendBase64(base64data, note, pDir) {
+async function sendBase64(base64data, note, patch, uid) {
     let options = {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            parentDir: pDir,
+            patchName: patch,
+            userID: uid,
             noteName: note,
             audioString: base64data
         })
@@ -117,25 +118,40 @@ async function sendBase64(base64data, note, pDir) {
 // get patch form, submit fetch to create directory with given patch name inside /audio/ on the server
 // then create recordings for all notes in their current state, store the recordings to the new directory
 const form = document.getElementById('patch-form');
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
     const form = event.target;
     var fd = new FormData(form);
     fd.append("upl", form.id);
-    fetch(form.action, {
+
+    var patch = fd.get('pname');
+    var uid = fd.get('userID');
+    var email = fd.get('email');
+    
+    // TODO: only create user if they haven't yet been created
+
+    // create user in DB
+    let options = {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            userID: uid,
+            email: email
+        })
+    }
+    await fetch('/createUser', options)
+
+    // add patch to user in DB
+    await fetch(form.action, {
         method: form.method,
         body: fd,
     })
 
-    // TODO: conditional check that directory was made successfully (or already existed)
+    // pass in patch name and user_id to create recordings
+    createAllRecordings(patch, uid);
 
-    // PASS IN PARENT DIRECTORY (CREATED DIRECTORY)
-    var parentDir = fd.get('pname');
-    // console.log(parentDir);
-    createAllRecordings(parentDir);
-
-    // display save success as alert
-    // window.alert(`patch ${parentDir} saved!`);
-
+    // display save success
     const log = document.getElementById('log');
     log.style.display = 'inline-block';
     log.textContent = 'patch saved!';
@@ -146,5 +162,4 @@ form.addEventListener('submit', (event) => {
     // set timeout to make log message disappear
     setTimeout(() => {log.style.display = 'none'}, 5000);
 
-    event.preventDefault();
 });
