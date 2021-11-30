@@ -25,16 +25,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // get oscillator drop down, make selected option change the synth oscillator
     var oscSelect = document.getElementById("osc-select");
     oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
-
-    // check for sign in and user id
-    const USER_ID = sessionStorage.getItem('userID');
-    document.getElementById("user-id").addEventListener('click', () => {
-        if (USER_ID) {
-            console.log(USER_ID);
-        } else {
-            console.log('user not logged in: id not found in session')
-        }
-    })
 })
 
 // get all keys
@@ -55,6 +45,7 @@ const polySynth = new Tone.PolySynth(Tone.Synth, synthOptions).toDestination();
 function playNote(note) {
     return () => {
         // invoke polySynth
+        polySynth.set({envelope: {release: 7}})
         polySynth.triggerAttackRelease(note, "8n");
     }
 }
@@ -69,9 +60,9 @@ function changeOscillator(osc) {
 }
 
 /* ----- Create recordings of all the current note elements, send to the server ----- */
-function createAllRecordings(patch, uid) {
-    // create a recording for each key, store in the parent directory (patch name)
-    keys.forEach(key => createRecording(key.dataset.note, patch, uid));
+async function createAllRecordings(patch, uid) {
+    // create a recording for each key, store in the DB by patch name and userID
+    keys.forEach(async (key) => await createRecording(key.dataset.note, patch, uid));
 }
 
 // Create recording of a note, send to server as base64 encoded string
@@ -82,18 +73,38 @@ async function createRecording(note, patch, uid) {
     recorder.start()
     tempSynth.triggerAttackRelease(note, "8n");
     setTimeout(async () => {
+        
         const recordingBlob = await recorder.stop()
+        
         // once recording is done, dispose
         tempSynth.dispose();
         recorder.dispose();
-        // use file reader to process blob
-        var reader = new FileReader();
-        reader.readAsDataURL(recordingBlob);
-        reader.onloadend = () => {
-            var base64data = reader.result;
-            sendBase64(base64data, note, patch, uid).then(text => console.log(text)).catch(err => console.log(err));
+        
+        // use file reader helper to process blob
+        const base64data = await readBlobAsync(recordingBlob);
+        try {
+            const response = await sendBase64(base64data, note, patch, uid);
+            console.log(response);
+        } catch (e) {
+            console.log(e);
         }
+        
     }, 4000);
+}
+
+// utility function to asynchronously read recording blobs
+function readBlobAsync(blob) {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+
+        reader.onloadend = () => {
+            resolve(reader.result);
+        }
+
+        reader.onerror = reject;
+
+        reader.readAsDataURL(blob);
+    })
 }
 
 async function sendBase64(base64data, note, patch, uid) {
@@ -129,9 +140,7 @@ form.addEventListener('submit', async function (event) {
     var uid = fd.get('userID');
     var email = fd.get('email');
     
-    // TODO: only create user if they haven't yet been created
-
-    // create user in DB
+    // create user in DB (mongo method checks for an existing user)
     let options = {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -149,7 +158,7 @@ form.addEventListener('submit', async function (event) {
     })
 
     // pass in patch name and user_id to create recordings
-    createAllRecordings(patch, uid);
+    await createAllRecordings(patch, uid);
 
     // display save success
     const log = document.getElementById('log');
