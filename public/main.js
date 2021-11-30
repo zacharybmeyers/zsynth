@@ -88,7 +88,7 @@ async function createRecording(note, patch, uid) {
         } catch (e) {
             console.log(e);
         }
-        
+
     }, 4000);
 }
 
@@ -159,6 +159,9 @@ form.addEventListener('submit', async function (event) {
 
     // pass in patch name and user_id to create recordings
     await createAllRecordings(patch, uid);
+
+    // TODO: await recording completion to display 'patch saved'
+    // TODO: freeze interaction with web app while patch is being saved
 
     // display save success
     const log = document.getElementById('log');
