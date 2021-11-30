@@ -51,45 +51,40 @@ MongoClient.connect(uri)
         res.render('login');
     })
 
-    app.post('/createUser', (req, res) => {   
+    app.post('/createUser', async (req, res) => {   
         console.log(req.body);     
-        mongo.createUser(db, req.body.userID, req.body.email);
+        await mongo.createUser(db, req.body.userID, req.body.email);
         res.send('user added to db!');
     })
 
     // create patch
-    app.post('/patch', type, (req, res) => {
-        mongo.addPatchToUser(db, req.body.userID, req.body.pname, { waveform: "sine" });
+    app.post('/patch', type, async (req, res) => {
+        await mongo.addPatchToUser(db, req.body.userID, req.body.pname, { waveform: "sine" });
         res.end();
     })
     
     // mongodb method for note upload
-    app.post('/upload/base64', (req, res) => {    
+    app.post('/upload/base64', async (req, res) => {    
         // strip metadata from audio string, write to .ogg file
         var rawAudioString = req.body.audioString.replace('data:audio/webm;codecs=opus;base64,', '')    
-        mongo.addNoteToPatch(db, req.body.userID, req.body.patchName, req.body.noteName, rawAudioString);
+        await mongo.addNoteToPatch(db, req.body.userID, req.body.patchName, req.body.noteName, rawAudioString);
         res.send('base64 added to db');
     })
 
     // single file GET request
-    app.get('/download/:patchName/:fileName', (req, res) => {
-        mongo.getNoteFromPatch(db, TEST_USER_ID, req.params.patchName, req.params.fileName)
-        .then(note => {
+    app.get('/download/:patchName/:fileName', async (req, res) => {
+        try {
+            const note = await mongo.getNoteFromPatch(db, TEST_USER_ID, req.params.patchName, req.params.fileName);
             const notePath = `./audio/${note.note_name}.ogg`;
-            audioStringToFile(notePath, note.audio_string)
-            .then(() => res.sendFile(path.resolve(notePath)))
-            .catch(e => {
-                console.log(e);
-                // TODO: can't send error in res here???
-                res.end();
-            })
-        }).catch(e => {
-            console.log(e)
-            // TODO: can't send error in res here????
+            await audioStringToFile(notePath, note.audio_string)
+            res.sendFile(path.resolve(notePath));
+            await removeAudioFile(path.resolve(notePath));
+        } catch (e) {
+            console.log(e);
             res.end();
-        })
+        } 
     })
-
+    
     // error handling
     app.use( (req, res) => {
         res.status(404);
@@ -111,6 +106,15 @@ MongoClient.connect(uri)
 async function audioStringToFile(path, audioString) {
     try {
         await fs.promises.writeFile(path, Buffer.from(audioString, 'base64'));
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// utility function for removing a generated audio file
+async function removeAudioFile(path) {
+    try {
+        await fs.promises.rm(path);
     } catch (error) {
         console.log(error);
     }

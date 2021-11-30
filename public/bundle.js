@@ -153,6 +153,8 @@ form.addEventListener('submit', async function (event) {
     var uid = fd.get('userID');
     var email = fd.get('email');
     
+    // TODO: only create user if they haven't yet been created
+
     // create user in DB
     let options = {
         method: "POST",
