@@ -24,6 +24,7 @@
 </div>
 
 <script>
+    var signupButton = document.getElementById("signup-button");
     var cancelButton = document.getElementById("cncl-button");
     cancelButton.addEventListener("click", () => document.location.href = "/home")
 
@@ -64,6 +65,8 @@
         // submit to Oliver's service
         var url = form.action + `email=${email}&password=${pswd}`
         try {
+            cancelButton.disabled = true;
+            signupButton.disabled = true;
             const response = await fetch(url);
             if (!response.ok) {
                 throw Error(`${response.status} ${response.statusText}`);
@@ -71,17 +74,19 @@
             // Read the uid response as text, create new user in DB, redirect page
             const uid = await response.text();
             console.log(uid);
-            await sendUIDtoDB(uid);
+            await sendUserToDB(uid, email);
             document.location.href = '/home';
         } catch (error) {
             console.log('Looks like there was a problem: ', error);
+            cancelButton.disabled = false;
+            signupButton.disabled = false;
             log.textContent = 'invalid email, please try again';
             message.style.color = "red";
             message.innerHTML = "&#10006"; // red x emoji
         }
     });
 
-    async function sendUIDtoDB(uid) {
+    async function sendUserToDB(uid, email) {
         try {
             const response = await fetch('/createUser', {
                 method: "POST",
@@ -89,7 +94,8 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    userID: uid
+                    userID: uid,
+                    email: email
                 })
             })
             const text = await response.text();

@@ -51,8 +51,7 @@ MongoClient.connect(uri)
         res.render('login');
     })
 
-    app.post('/createUser', async (req, res) => {   
-        console.log(req.body);     
+    app.post('/createUser', async (req, res) => {    
         await mongo.createUser(db, req.body.userID, req.body.email);
         res.send('user added to db!');
     })

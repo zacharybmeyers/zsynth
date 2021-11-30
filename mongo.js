@@ -1,12 +1,17 @@
 // ALL MongoDB FUNCTIONS
 async function createUser(db, userID, email) {
-    const user = {
-        user_id: userID,
-        email: email
+    const existingUser = await db.collection("users").findOne({user_id: userID});
+    if (!existingUser) {
+        const user = {
+            user_id: userID,
+            email: email
+        }
+        console.log(user);
+        const result = await db.collection("users").insertOne(user);
+        console.log(`user added with id: ${result.insertedId}`);
+    } else {
+        console.log('cannot create user: already exists')
     }
-    console.log(user);
-    const result = await db.collection("users").insertOne(user);
-    console.log(`user added with id: ${result.insertedId}`);
 }
 
 async function addPatchToUser(db, userID, patchName, patchConfig) {
