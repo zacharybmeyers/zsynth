@@ -58,9 +58,15 @@ async function getNoteFromPatch(db, userID, patchName, noteName) {
     throw `Unable to find note: ${noteName}`;
 }
 
+async function getUID(db, email) {
+    const user = await db.collection("users").findOne({email: email})
+    return user.user_id
+}
+
 module.exports = {
     createUser,
     addPatchToUser,
     addNoteToPatch,
-    getNoteFromPatch
+    getNoteFromPatch,
+    getUID
 }

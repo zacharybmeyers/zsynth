@@ -71,9 +71,10 @@ MongoClient.connect(uri)
     })
 
     // single file GET request
-    app.get('/download/:patchName/:fileName', async (req, res) => {
+    app.get('/download/:email/:patchName/:fileName', async (req, res) => {
+        const uid = await mongo.getUID(db, req.params.email);
         try {
-            const note = await mongo.getNoteFromPatch(db, TEST_USER_ID, req.params.patchName, req.params.fileName);
+            const note = await mongo.getNoteFromPatch(db, uid, req.params.patchName, req.params.fileName);
             const notePath = `./audio/${note.note_name}.ogg`;
             await audioStringToFile(notePath, note.audio_string)
             res.sendFile(path.resolve(notePath));
