@@ -18,14 +18,27 @@ window.addEventListener('DOMContentLoaded', () => {
         // key.addEventListener('click', playNote(key.dataset.note, synthOptions));
         key.addEventListener('click', playNote(key.dataset.note));
     })
+
+    // get oscillator drop down, make selected option change the synth oscillator
+    const oscSelect = document.getElementById("osc-select");
+    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
+
+    // get ADSR sliders, allow their values to alter the synth
+    const adsrSliders = document.querySelectorAll(".adsr");
+    adsrSliders.forEach(slider => {
+        // init sliders to default values
+        slider.value = synthOptions.envelope[slider.id];
+        slider.oninput = () => {
+            console.log(`name: ${slider.id}, value: ${slider.value}`)
+            changeEnvelope(slider);
+        }
+    })
+
     // attach a click listener to a stop button
     document.getElementById("mute-button").addEventListener('click', () => {
         polySynth.releaseAll();
     })
-    // get oscillator drop down, make selected option change the synth oscillator
-    var oscSelect = document.getElementById("osc-select");
-    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
-})
+}) 
 
 // get all keys
 const keys = document.querySelectorAll(".key");
@@ -34,29 +47,44 @@ const keys = document.querySelectorAll(".key");
 const synthOptions = {
     oscillator: {
         type : "fatsine"
+    },
+    envelope: {
+        attackCurve: "linear",
+        decayCurve: "exponential",
+        releaseCurve: "exponential",
+        attack: 0.20,
+        decay: 2.0,
+        sustain: 1.0,
+        release: 0.20
     }
 }
 
 // create synth
 const polySynth = new Tone.PolySynth(Tone.Synth, synthOptions).toDestination();
 
-// playNote returns a function that creates a new synth with :param:options (oscillator)
-// and plays the :param:note
 function playNote(note) {
     return () => {
         // invoke polySynth
-        polySynth.set({envelope: {release: 7}})
-        polySynth.triggerAttackRelease(note, "8n");
+        const options = polySynth.get();
+        polySynth.triggerAttackRelease(note, options.envelope.release);
     }
 }
 
 function changeOscillator(osc) {
-    // update poly synth
     polySynth.set({
         oscillator: {
             type: osc
         }
     });
+}
+
+function changeEnvelope(slider) {
+    var envelopeOptions = {};
+    envelopeOptions[slider.id] = slider.value;
+    // update poly synth
+    polySynth.set({
+        envelope: envelopeOptions
+    })
 }
 
 /* ----- Create recordings of all the current note elements, send to the server ----- */
@@ -69,9 +97,10 @@ async function createAllRecordings(patch, uid) {
 async function createRecording(note, patch, uid) {
     const recorder = new Tone.Recorder()
     // create a new temporary synth with polySynth's current options
-    const tempSynth = new Tone.Synth(polySynth.get()).connect(recorder);
+    const options = polySynth.get();
+    const tempSynth = new Tone.Synth(options).connect(recorder);
     recorder.start()
-    tempSynth.triggerAttackRelease(note, "8n");
+    tempSynth.triggerAttackRelease(note, options.envelope.release);
     setTimeout(async () => {
         
         const recordingBlob = await recorder.stop()

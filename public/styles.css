@@ -110,3 +110,11 @@ a {
 .tooltip:hover .tooltip-text {
     visibility: visible;
 }
+
+.sliders {
+    padding: 10px;
+}
+
+.sliders > * {
+    padding: 5px;
+}

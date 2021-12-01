@@ -42,14 +42,27 @@ window.addEventListener('DOMContentLoaded', () => {
         // key.addEventListener('click', playNote(key.dataset.note, synthOptions));
         key.addEventListener('click', playNote(key.dataset.note));
     })
+
+    // get oscillator drop down, make selected option change the synth oscillator
+    const oscSelect = document.getElementById("osc-select");
+    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
+
+    // get ADSR sliders, allow their values to alter the synth
+    const adsrSliders = document.querySelectorAll(".adsr");
+    adsrSliders.forEach(slider => {
+        // init sliders to default values
+        slider.value = synthOptions.envelope[slider.id];
+        slider.oninput = () => {
+            console.log(`name: ${slider.id}, value: ${slider.value}`)
+            changeEnvelope(slider);
+        }
+    })
+
     // attach a click listener to a stop button
     document.getElementById("mute-button").addEventListener('click', () => {
         polySynth.releaseAll();
     })
-    // get oscillator drop down, make selected option change the synth oscillator
-    var oscSelect = document.getElementById("osc-select");
-    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
-})
+}) 
 
 // get all keys
 const keys = document.querySelectorAll(".key");
@@ -58,29 +71,44 @@ const keys = document.querySelectorAll(".key");
 const synthOptions = {
     oscillator: {
         type : "fatsine"
+    },
+    envelope: {
+        attackCurve: "linear",
+        decayCurve: "exponential",
+        releaseCurve: "exponential",
+        attack: 0.20,
+        decay: 2.0,
+        sustain: 1.0,
+        release: 0.20
     }
 }
 
 // create synth
 const polySynth = new Tone.PolySynth(Tone.Synth, synthOptions).toDestination();
 
-// playNote returns a function that creates a new synth with :param:options (oscillator)
-// and plays the :param:note
 function playNote(note) {
     return () => {
         // invoke polySynth
-        polySynth.set({envelope: {release: 7}})
-        polySynth.triggerAttackRelease(note, "8n");
+        const options = polySynth.get();
+        polySynth.triggerAttackRelease(note, options.envelope.release);
     }
 }
 
 function changeOscillator(osc) {
-    // update poly synth
     polySynth.set({
         oscillator: {
             type: osc
         }
     });
+}
+
+function changeEnvelope(slider) {
+    var envelopeOptions = {};
+    envelopeOptions[slider.id] = slider.value;
+    // update poly synth
+    polySynth.set({
+        envelope: envelopeOptions
+    })
 }
 
 /* ----- Create recordings of all the current note elements, send to the server ----- */
@@ -93,31 +121,28 @@ async function createAllRecordings(patch, uid) {
 async function createRecording(note, patch, uid) {
     const recorder = new Tone.Recorder()
     // create a new temporary synth with polySynth's current options
-    const tempSynth = new Tone.Synth(polySynth.get()).connect(recorder);
+    const options = polySynth.get();
+    const tempSynth = new Tone.Synth(options).connect(recorder);
     recorder.start()
-    tempSynth.triggerAttackRelease(note, "8n");
-    
-    const recordingBlob = await recorder.stop()
-    // once recording is done, dispose
-    tempSynth.dispose();
-    recorder.dispose();
+    tempSynth.triggerAttackRelease(note, options.envelope.release);
+    setTimeout(async () => {
+        
+        const recordingBlob = await recorder.stop()
+        
+        // once recording is done, dispose
+        tempSynth.dispose();
+        recorder.dispose();
+        
+        // use file reader helper to process blob
+        const base64data = await readBlobAsync(recordingBlob);
+        try {
+            const response = await sendBase64(base64data, note, patch, uid);
+            console.log(response);
+        } catch (e) {
+            console.log(e);
+        }
 
-    // use file reader helper to process blob
-    const base64data = await readBlobAsync(recordingBlob);
-    try {
-        const response = await sendBase64(base64data, note, patch, uid);
-        console.log(response);
-    } catch (e) {
-        console.log(e);
-    }
-
-    // var reader = new FileReader();
-    // reader.readAsDataURL(recordingBlob);
-    // reader.onloadend = async () => {
-    //     var base64data = reader.result;
-    //     await sendBase64(base64data, note, patch, uid).then(text => console.log(text)).catch(err => console.log(err));
-    // }
-    
+    }, 4000);
 }
 
 // utility function to asynchronously read recording blobs
@@ -187,6 +212,9 @@ form.addEventListener('submit', async function (event) {
 
     // pass in patch name and user_id to create recordings
     await createAllRecordings(patch, uid);
+
+    // TODO: await recording completion to display 'patch saved'
+    // TODO: freeze interaction with web app while patch is being saved
 
     // display save success
     const log = document.getElementById('log');
