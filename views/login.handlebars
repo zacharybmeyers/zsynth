@@ -20,6 +20,7 @@
     </div>
 </div>
 
+{{!-- attempt logging in with oliver's service, display message to user if unsuccessful --}}
 <script>
 
     const cancelButton = document.getElementById('cncl-button');
@@ -45,19 +46,23 @@
             log.textContent = 'logging in, please wait...';
             cancelButton.disabled = true;
             submitButton.disabled = true;
+
             const response = await fetch(url);
             if (!response.ok) {
                 throw Error(`${response.status} ${response.statusText}`);
             }
+
             // Success: read the uid response as text, store in session, redirect page
             const uid = await response.text();
             sessionStorage.setItem('userID', uid);
             sessionStorage.setItem('email', email);
+
             // reset login message
             log.textContent = '';
             log.style.display = 'none';
             message.style.color = 'goldenrod';
             document.location.href = '/';
+            
         } catch (error) {
             console.log('Looks like there was a problem: ', error)
             // Failure: display a message and red 'x' emoji to user

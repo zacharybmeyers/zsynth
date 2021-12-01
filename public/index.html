@@ -101,6 +101,7 @@
 
         <p id="log" class="loose-text"></p>
         
+        <!-- display account menu bar at top of page based on user's login status -->
         <script>
             const uid = sessionStorage.getItem('userID');
             const email = sessionStorage.getItem('email');
@@ -123,6 +124,5 @@
                 document.getElementById('patch-submit').disabled = true;
             }
         </script>
-        <!-- <script src="bundle.js"></script> -->
     </body>
 </html>

@@ -1,3 +1,31 @@
+/* 
+overall mongodb schema: embedded (nested) documents
+
+const user = {
+    _id: some unique object id (primary key),
+    user_id: userID (from Oliver's login service?),
+    patches: [
+        {
+            patch_name: patchName,
+            patch_config: patchConfig,
+            notes: [
+                {
+                    note_name: noteName,
+                    audio_string: audioString
+                },
+                {
+                    note_name: noteName,
+                    audio_string: audioString
+                }
+            ]
+        },
+        {
+            ANOTHER PATCH HERE
+        }
+    ]
+}
+*/
+
 // ALL MongoDB FUNCTIONS
 async function createUser(db, userID, email) {
     const existingUser = await db.collection("users").findOne({user_id: userID});

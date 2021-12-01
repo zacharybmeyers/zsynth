@@ -12,12 +12,14 @@ app.set('port', 8080);
 // body parser deprecated, use express to parse...
 //  application/xwww-form-urlencoded
 //  application/json
-// use multer to parse multipart/form-data
-// use public folder to serve client-side html and js
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-var upload = multer({ dest: "audio/" });
+
+// use multer to parse multipart/form-data
+var upload = multer({ dest: 'audio/' });
 var type = upload.single('upl');
+
+// use public folder to serve client-side html and js
 app.use(express.static('public'));
 
 // MongoDB setup
@@ -28,10 +30,6 @@ const uri = `mongodb+srv://${username}:${password}@cluster0.bzqjc.mongodb.net/zs
 
 // import utility functions for MongoDB CRUD operations
 const mongo = require('./mongo.js');
-
-// test cases
-const TEST_USER_ID = 2;
-const TEST_PATCH_NAME = "triangley";
 
 MongoClient.connect(uri)
 .then(client => {
@@ -88,12 +86,10 @@ MongoClient.connect(uri)
     // error handling
     app.use( (req, res) => {
         res.status(404);
-        // res.render('404');
     });
         
     app.use( (req, res) => {
         res.status(500);
-        // res.render('500');
     });
     
     app.listen(app.get('port'), function () {
