@@ -35,4 +35,4 @@ As of right now, the range of notes provided is two octaves from C3-B5 (not incl
 
 Example request:
 
-`curl http://localhost:8080/download/tuser1%40gmail.com/myPatch/C4 --output C4.ogg`
+`curl http://localhost:8080/download/tuser1%40gmail.com/defaultPatch/C4 --output C4.ogg`

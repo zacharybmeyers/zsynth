@@ -28,49 +28,48 @@ PERFORMANCE OF THIS SOFTWARE.
 //
 // the npm start script has been configured to bundle, serve, and launch localhost
 
-var Tone = require('tone');
+var Tone = require("tone");
 
 // when page loads add functionality to start audio context and play all notes
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
+
     // attach a click listener to a play button to start audio context
-    document.getElementById("play-button").addEventListener('click', async () => {
+    document.getElementById("play-button").addEventListener("click", async () => {
 	    await Tone.start();
-	    console.log('audio is ready');
+	    console.log("audio is ready");
     })
+
     // get all notes, make them playable based on their unique id
+    const keys = document.querySelectorAll(".key");
     keys.forEach(key => {
-        // key.addEventListener('click', playNote(key.dataset.note, synthOptions));
-        key.addEventListener('click', playNote(key.dataset.note));
+        key.addEventListener("click", playNote(key.dataset.note));
     })
 
     // get oscillator drop down, make selected option change the synth oscillator
     const oscSelect = document.getElementById("osc-select");
-    oscSelect.addEventListener('change', () => changeOscillator(oscSelect.value));
+    oscSelect.addEventListener("change", () => changeOscillator(oscSelect.value));
 
     // get ADSR sliders, allow their values to alter the synth
     const adsrSliders = document.querySelectorAll(".adsr");
     adsrSliders.forEach(slider => {
-        // init sliders to default values
+        // init sliders to default values on page load
         slider.value = synthOptions.envelope[slider.id];
         slider.oninput = () => {
-            console.log(`name: ${slider.id}, value: ${slider.value}`)
             changeEnvelope(slider);
         }
     })
 
     // attach a click listener to a stop button
-    document.getElementById("mute-button").addEventListener('click', () => {
+    document.getElementById("mute-button").addEventListener("click", () => {
         polySynth.releaseAll();
     })
-}) 
 
-// get all keys
-const keys = document.querySelectorAll(".key");
+}) 
 
 // create default synth options
 const synthOptions = {
     oscillator: {
-        type : "fatsine"
+        type : "sine"
     },
     envelope: {
         attackCurve: "linear",
@@ -89,6 +88,7 @@ const polySynth = new Tone.PolySynth(Tone.Synth, synthOptions).toDestination();
 function playNote(note) {
     return () => {
         // invoke polySynth
+        polySynth.volume.value = -20;
         const options = polySynth.get();
         polySynth.triggerAttackRelease(note, options.envelope.release);
     }
@@ -111,19 +111,25 @@ function changeEnvelope(slider) {
     })
 }
 
-/* ----- Create recordings of all the current note elements, send to the server ----- */
+/* ----- RECORDING METHODS ----- */
+// create recordings for all notes, store in the DB by patch name and userID
 async function createAllRecordings(patch, uid) {
-    // create a recording for each key, store in the DB by patch name and userID
+
+    const keys = document.querySelectorAll(".key");
     keys.forEach(async (key) => await createRecording(key.dataset.note, patch, uid));
+
 }
 
-// Create recording of a note, send to server as base64 encoded string
+// create recording of a note, send to server as base64 encoded string
 async function createRecording(note, patch, uid) {
-    const recorder = new Tone.Recorder()
+    
     // create a new temporary synth with polySynth's current options
+    const recorder = new Tone.Recorder()
     const options = polySynth.get();
     const tempSynth = new Tone.Synth(options).connect(recorder);
     recorder.start()
+
+    tempSynth.volume.value = -20;
     tempSynth.triggerAttackRelease(note, options.envelope.release);
     setTimeout(async () => {
         
@@ -143,6 +149,7 @@ async function createRecording(note, patch, uid) {
         }
 
     }, 4000);
+
 }
 
 // utility function to asynchronously read recording blobs
@@ -161,6 +168,7 @@ function readBlobAsync(blob) {
 }
 
 async function sendBase64(base64data, note, patch, uid) {
+    
     let options = {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -171,38 +179,44 @@ async function sendBase64(base64data, note, patch, uid) {
             audioString: base64data
         })
     }
+
     let response = await fetch("/upload/base64", options);
+    
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
     return await response.text();
+
 }
 /* ---------- */
 
-// get patch form, submit fetch to create directory with given patch name inside /audio/ on the server
-// then create recordings for all notes in their current state, store the recordings to the new directory
-const form = document.getElementById('patch-form');
-form.addEventListener('submit', async function (event) {
+// on patch form save -> 
+//      -create user in DB (if necessary)
+//      -add patch to user
+//      -create recordings for all notes, store in DB
+const form = document.getElementById("patch-form");
+form.addEventListener("submit", async function (event) {
+    
     event.preventDefault();
 
     const form = event.target;
     var fd = new FormData(form);
     fd.append("upl", form.id);
 
-    var patch = fd.get('pname');
-    var uid = fd.get('userID');
-    var email = fd.get('email');
+    var patch = fd.get("pname");
+    var uid = fd.get("userID");
+    var email = fd.get("email");
     
     // create user in DB (mongo method checks for an existing user)
-    let options = {
+    await fetch("/createUser", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             userID: uid,
             email: email
         })
-    }
-    await fetch('/createUser', options)
+    })
 
     // add patch to user in DB
     await fetch(form.action, {
@@ -217,15 +231,15 @@ form.addEventListener('submit', async function (event) {
     // TODO: freeze interaction with web app while patch is being saved
 
     // display save success
-    const log = document.getElementById('log');
-    log.style.display = 'inline-block';
-    log.textContent = 'patch saved!';
+    const log = document.getElementById("log");
+    log.style.display = "inline-block";
+    log.textContent = "patch saved!";
 
     // reset text input back to blank
-    document.getElementById('pname').value = "";
+    document.getElementById("pname").value = "";
 
     // set timeout to make log message disappear
-    setTimeout(() => {log.style.display = 'none'}, 5000);
+    setTimeout(() => {log.style.display = "none"}, 5000);
 
 });
 

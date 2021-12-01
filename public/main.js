@@ -45,7 +45,7 @@ window.addEventListener("DOMContentLoaded", () => {
 // create default synth options
 const synthOptions = {
     oscillator: {
-        type : "fatsine"
+        type : "sine"
     },
     envelope: {
         attackCurve: "linear",
@@ -64,6 +64,7 @@ const polySynth = new Tone.PolySynth(Tone.Synth, synthOptions).toDestination();
 function playNote(note) {
     return () => {
         // invoke polySynth
+        polySynth.volume.value = -20;
         const options = polySynth.get();
         polySynth.triggerAttackRelease(note, options.envelope.release);
     }
@@ -99,12 +100,12 @@ async function createAllRecordings(patch, uid) {
 async function createRecording(note, patch, uid) {
     
     // create a new temporary synth with polySynth's current options
+    const recorder = new Tone.Recorder()
     const options = polySynth.get();
     const tempSynth = new Tone.Synth(options).connect(recorder);
-
-    const recorder = new Tone.Recorder()
     recorder.start()
 
+    tempSynth.volume.value = -20;
     tempSynth.triggerAttackRelease(note, options.envelope.release);
     setTimeout(async () => {
         
