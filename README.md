@@ -2,7 +2,13 @@
 
 Interactive and customizable synthesizer built with Tone.js, with a server that can function as a microservice to provide custom audio.
 
-# server setup
+Video demo:
+
+[![zsynth final demo](https://i.imgur.com/hJWq6UJ.png)](https://youtu.be/7UgykQw2z3A "zsynth final demo")
+
+# local server setup
+
+Contact me for access to the MongoDB instance.
 
 Clone the repo, use ``npm install`` for all dependencies.
 
